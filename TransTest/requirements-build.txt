@@ -1,0 +1,11 @@
+# 打包成可执行程序时才需要的额外依赖（平时运行不需要）
+#
+#   pip install -r requirements.txt -r requirements-build.txt
+#   ./build.sh                # 生成 dist/minitf/minitf
+#
+# 注意：可执行程序体积主要来自 PyTorch 本身——CUDA 版约 6.4 GB，
+# CPU 版约 854 MB，单文件版约 258 MB。这些产物已在 .gitignore 中排除，
+# 不入库，需要时用 ./build.sh 重新生成即可。
+
+-r requirements.txt
+pyinstaller>=6.0

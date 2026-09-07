@@ -1,0 +1,26 @@
+# 27-Token 迷你 Transformer —— 运行依赖
+#
+# 本项目只依赖 PyTorch 一个第三方库，其余全部是 Python 标准库
+# （argparse / json / math / os / random / sys / time）。
+# handcalc.py 连 torch 都不需要，除非加 --verify 与 PyTorch 对拍。
+#
+# 安装方式（三选一）：
+#
+#   1) 自动识别显卡，装带 CUDA 的版本（Linux/Windows 有 NVIDIA 显卡时）
+#        pip install -r requirements.txt
+#
+#   2) 只用 CPU（体积小得多，约 200MB，无显卡或不想装 CUDA 时）
+#        pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu
+#
+#   3) 用本项目的脚本一键建虚拟环境并安装
+#        ./install.sh          # CPU 版
+#        ./install.sh --gpu    # CUDA 版
+#
+# 版本要求：torch >= 2.0 即可（用到的 API 都很基础：nn.Module / GELU /
+# multinomial / OneCycleLR）。开发环境实测 2.7.0+cu128 与 2.14.0+cpu 均正常。
+
+torch>=2.0
+
+# 项目代码本身不用 numpy，但 torch 缺了它会在每次运行时打印一条
+# "Failed to initialize NumPy" 警告，刷屏影响阅读，所以一并装上。
+numpy>=1.24

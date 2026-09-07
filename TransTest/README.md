@@ -34,6 +34,30 @@ FFN、因果掩码全部手写；可视化不依赖 matplotlib，用终端 ASCII
    params.json
 ```
 
+## 安装
+
+**只依赖 PyTorch 一个第三方库**，其余全部是 Python 标准库（`argparse` / `json` /
+`math` / `os` / `random` / `sys` / `time`）。`handcalc.py` 连 torch 都不需要——
+除非加 `--verify` 与 PyTorch 对拍。
+
+```bash
+./install.sh              # 建虚拟环境 + 装 CPU 版 torch（约 200MB）
+./install.sh --gpu        # 装 CUDA 版 torch（约 2.5GB，需 NVIDIA 显卡）
+./install.sh --build      # 额外装 PyInstaller，用于打包可执行程序
+./install.sh --here       # 不建虚拟环境，直接装进当前 Python 环境
+source .venv/bin/activate # 激活
+```
+
+不想用脚本就手动装：
+
+```bash
+pip install -r requirements.txt                                              # 自动选版本
+pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu   # 只要 CPU 版
+pip install -r requirements.txt -r requirements-build.txt                    # 连打包依赖一起
+```
+
+要求 `torch >= 2.0`（用到的 API 都很基础）。实测 2.7.0+cu128 与 2.14.0+cpu 均正常。
+
 ## 60 秒上手
 
 ```bash
@@ -486,7 +510,13 @@ python3 handcalc.py --params demo_tiny.json --prompt "i li" --ncol 8 --topk 5   
 
 # 六、打包成可执行程序
 
+> **仓库里没有现成的可执行程序。** PyInstaller 产物体积过大（CUDA 版 6.4 GB，
+> 单文件版也有 258 MB），已在 `.gitignore` 中排除；而且可执行文件绑定平台——
+> Linux 上打的包在 Windows 用不了。需要时用下面的命令现场生成即可，
+> 依赖装好后一条命令几分钟就出来。
+
 ```bash
+./install.sh --build            # 先装打包依赖（PyInstaller）
 ./build.sh                      # 目录版(推荐): dist/minitf/minitf，带 CUDA，可用 GPU
 ./build.sh --cpu                # 精简版: 用 CPU-only 的 torch，体积小 8 倍
 ./build.sh --onefile --cpu      # 单文件版: dist/minitf-onefile，拷走即用
@@ -988,14 +1018,29 @@ token id 转可打印字符，空格显示成 `␣`（否则在报告里看不�
 
 ---
 
+## `requirements.txt` / `requirements-build.txt` / `install.sh` — 依赖与安装
+
+- **`requirements.txt`**：运行依赖，只有 `torch>=2.0` 和 `numpy>=1.24`
+  （numpy 项目本身不用，只是为了消掉 torch 缺它时每次运行都打印的警告）。
+  文件头注释里写了 CPU / CUDA 两种装法。
+- **`requirements-build.txt`**：打包才需要的 `pyinstaller>=6.0`，用 `-r` 继承运行依赖。
+- **`install.sh`**：一键建 venv 并安装。`--gpu` 装 CUDA 版，`--build` 连打包依赖一起装，
+  `--here` 不建 venv 直接装进当前环境，`--venv DIR` 自定义目录。
+  装完会实测打印 Python 版本、PyTorch 版本和 CUDA 是否可用。
+
 ## 生成的文件
 
-| 文件 | 内容 |
-|---|---|
-| `ckpt.pt` | PyTorch 权重文件，含 `args` / `config` / `model` / `stats` 四块 |
-| `params.json` | 人类可读的参数导出，含词表、公式、张量说明和全部数值 |
-| `dist/minitf/` | 打包出的可执行程序 |
-| `.venv-cpu/` | `--cpu` 打包时自动创建的 CPU-only torch 环境 |
+以下都**不入库**，需要时用对应命令重新生成：
+
+| 文件 | 内容 | 重新生成 |
+|---|---|---|
+| `ckpt.pt` | PyTorch 权重文件，含 `args` / `config` / `model` / `stats` 四块 | `python3 train.py` |
+| `params.json` | 人类可读的参数导出，含词表、公式、张量说明和全部数值 | `python3 export_params.py` |
+| `dist/`、`build/` | 打包出的可执行程序（GB 级） | `./build.sh` |
+| `.venv/`、`.venv-cpu/` | 虚拟环境 | `./install.sh` / `./build.sh --cpu` |
+
+例外：`tiny_params.json` 和 `demo_tiny.json`（各约 25 KB）**入库保留**，
+它们是 README 手算章节的示例数据，体积小且免得读者非要先训练才能看懂。
 
 ---
 
