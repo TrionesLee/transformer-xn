@@ -1,0 +1,39 @@
+# v0 runtime files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+
+# Common ignores
+node_modules/
+.next/
+.env*.local
+.DS_Store
+# ===== Python / 迷你 Transformer 项目 =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# PyInstaller 打包产物（单个文件就上 GB，GitHub 拒收 >100MB）
+dist/
+build/
+*.spec.bak
+
+# 打包用的 CPU-only 虚拟环境（可由 build.sh --cpu 自动重建）
+.venv-cpu/
+venv/
+.venv/
+
+# 训练产物（可由 train.py 重新生成）
+*.pt
+ckpt.pt
+demo_ckpt.pt
+exe_ckpt.pt
+tiny_ckpt.pt
+demo_tiny.pt
+
+# 大的参数导出（1.5MB 起，可由 export_params.py 重新生成）
+params.json
+demo_params.json
+exe_params.json
+# 注：手算规模的小导出（tiny_params.json / demo_tiny.json，各约 25KB）
+#     体积小且是 README 的示例，故不忽略
